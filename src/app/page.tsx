@@ -11,6 +11,22 @@ import {
   faMoon,
 } from "@fortawesome/free-solid-svg-icons";
 
+type WeatherDay = {
+  time: string;
+  weather_code: number | string;
+  temperature_2m_min: number;
+  temperature_2m_max: number;
+  estimatedEnergy: number;
+};
+
+type WeekSummary = {
+  average_pressure: number;
+  max_temperature_in_week: number;
+  min_temperature_in_week: number;
+  average_sun_exposure: number;
+  rain_information: string;
+};
+
 export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
 
@@ -19,9 +35,10 @@ export default function Home() {
   );
 
   const [locationName, setLocationName] = useState<string | null>(null);
-  const [weather, setWeather] = useState<any>(null);
-  const [weekSummary, setWeekSummary] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
+
+  const [weather, setWeather] = useState<WeatherDay[] | null>(null);
+
+  const [weekSummary, setWeekSummary] = useState<WeekSummary | null>(null);
 
   const bgMain = darkMode ? "#5A189A" : "#E0AAFF";
   const bgColumn = darkMode ? "#3C096C" : "#9D4EDD";
@@ -29,17 +46,12 @@ export default function Home() {
 
   useEffect(() => {
     if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setLocation({
-            lat: pos.coords.latitude,
-            lon: pos.coords.longitude,
-          });
-        },
-        () => setError("Nie udało się pobrać lokalizacji")
-      );
-    } else {
-      setError("Geolokalizacja nie jest wspierana");
+      navigator.geolocation.getCurrentPosition((pos) => {
+        setLocation({
+          lat: pos.coords.latitude,
+          lon: pos.coords.longitude,
+        });
+      });
     }
   }, []);
 
@@ -56,7 +68,6 @@ export default function Home() {
         })
         .catch((err) => {
           console.error("Location fetch error:", err);
-          setError("Could not fetch location name");
         });
 
       fetch(
@@ -66,7 +77,6 @@ export default function Home() {
         .then(setWeather)
         .catch((err) => {
           console.error("Weather fetch error:", err);
-          setError("Could not fetch weather data");
         });
 
       fetch(
@@ -76,7 +86,6 @@ export default function Home() {
         .then(setWeekSummary)
         .catch((err) => {
           console.error("Weekly summary fetch error:", err);
-          setError("Could not fetch weekly summary");
         });
     }
   }, [location]);
@@ -214,7 +223,8 @@ export default function Home() {
 }
 
 function formatDate(dateStr: string) {
-  const [year, month, day] = dateStr.split("-");
+  const [, month, day] = dateStr.split("-");
+
   return `${day}/${month}`;
 }
 
