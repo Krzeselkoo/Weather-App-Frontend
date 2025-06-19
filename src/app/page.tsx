@@ -1,103 +1,242 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCloudRain,
+  faCloudSun,
+  faSnowflake,
+  faBoltLightning,
+  faSun,
+  faMoon,
+} from "@fortawesome/free-solid-svg-icons";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [darkMode, setDarkMode] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(
+    null
+  );
+
+  const [locationName, setLocationName] = useState<string | null>(null);
+  const [weather, setWeather] = useState<any>(null);
+  const [weekSummary, setWeekSummary] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const bgMain = darkMode ? "#5A189A" : "#E0AAFF";
+  const bgColumn = darkMode ? "#3C096C" : "#9D4EDD";
+  const bgFooter = darkMode ? "#3C096C" : "#9D4EDD";
+
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setLocation({
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude,
+          });
+        },
+        () => setError("Nie udało się pobrać lokalizacji")
+      );
+    } else {
+      setError("Geolokalizacja nie jest wspierana");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (location) {
+      fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${location.lat}&lon=${location.lon}&format=json`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.address && data.address.city) {
+            setLocationName(data.address.city);
+          }
+        })
+        .catch((err) => {
+          console.error("Location fetch error:", err);
+          setError("Could not fetch location name");
+        });
+
+      fetch(
+        `http://localhost:8080/api/weather-forecast?latitude=${location.lat}&longitude=${location.lon}`
+      )
+        .then((res) => res.json())
+        .then(setWeather)
+        .catch((err) => {
+          console.error("Weather fetch error:", err);
+          setError("Could not fetch weather data");
+        });
+
+      fetch(
+        `http://localhost:8080/api/week-summary?latitude=${location.lat}&longitude=${location.lon}`
+      )
+        .then((res) => res.json())
+        .then(setWeekSummary)
+        .catch((err) => {
+          console.error("Weekly summary fetch error:", err);
+          setError("Could not fetch weekly summary");
+        });
+    }
+  }, [location]);
+
+  return (
+    <div
+      className="min-h-screen flex flex-col"
+      style={{ backgroundColor: bgMain }}
+    >
+      <header
+        className="p-4 h-40 flex items-center justify-between text-4xl font-bold gap-2"
+        style={{
+          backgroundColor: bgFooter,
+          color: "#F3F4F6",
+          textShadow: "0 2px 8px rgba(0,0,0,0.10)",
+          letterSpacing: "1px",
+        }}
+      >
+        <div className="flex-1 text-left" />
+        <div className="flex-1 text-center">
+          Weather for {locationName ? locationName : "your location"}
         </div>
+        <div className="flex-1 flex justify-end items-center">
+          <button
+            className="bg-transparent border-none cursor-pointer mr-8"
+            onClick={() => setDarkMode((d) => !d)}
+            title="Toggle dark mode"
+          >
+            <FontAwesomeIcon icon={darkMode ? faSun : faMoon} color="#F3F4F6" />
+          </button>
+        </div>
+      </header>
+      <main className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-8 p-4">
+        {[...Array(7)].map((_, i) => (
+          <div
+            key={i}
+            className="rounded p-2 text-center mx-auto max-w-xs w-full flex flex-col justify-between h-full transition-transform hover:scale-105 hover:shadow-lg"
+            style={{
+              backgroundColor: bgColumn,
+              minHeight: "340px",
+              color: "#F3F4F6",
+              textShadow: "0 2px 8px rgba(0,0,0,0.25)",
+            }}
+          >
+            <h3
+              className="font-bold w-full block text-4xl mb-2"
+              style={{ letterSpacing: "2px" }}
+            >
+              {weather && weather[i] && formatDate(weather[i].time)}
+            </h3>
+            <div className="flex flex-col items-center justify-center flex-1">
+              {weather && weather[i] && weatherCodeImg(weather[i].weather_code)}
+              {weather && weather[i] && (
+                <span className="block font-semibold text-4xl mt-16">
+                  {weather[i].temperature_2m_min}°C /{" "}
+                  {weather[i].temperature_2m_max}°C
+                </span>
+              )}
+            </div>
+            <div className="mt-2 mb-2">
+              {weather && weather[i] && (
+                <span
+                  title="Estimated energy production for this day"
+                  className="block text-lg"
+                >
+                  Est. energy: {weather[i].estimatedEnergy.toFixed(0)} kWh
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      <footer
+        className="p-4 text-center h-40 flex flex-col items-center justify-center text-lg gap-2 relative"
+        style={{
+          backgroundColor: bgFooter,
+          color: "#F3F4F6",
+          textShadow: "0 2px 8px rgba(0,0,0,0.25)",
+        }}
+      >
+        {weekSummary ? (
+          <div
+            className="w-full overflow-x-auto"
+            style={{ WebkitOverflowScrolling: "touch" }}
+          >
+            <div className="flex flex-nowrap gap-x-8 gap-y-2 items-center justify-center min-w-max">
+              <span className="whitespace-nowrap">
+                Avg. pressure:{" "}
+                <span className="font-bold" style={{ fontSize: "2.5rem" }}>
+                  <span className="text-2xl sm:text-[2.5rem]">
+                    {weekSummary.average_pressure.toFixed(1)} hPa
+                  </span>
+                </span>
+              </span>
+              <span className="whitespace-nowrap">
+                Max temperature:{" "}
+                <span className="font-bold" style={{ fontSize: "2.5rem" }}>
+                  <span className="text-2xl sm:text-[2.5rem]">
+                    {weekSummary.max_temperature_in_week}°C
+                  </span>
+                </span>
+              </span>
+              <span className="whitespace-nowrap">
+                Min temperature:{" "}
+                <span className="font-bold" style={{ fontSize: "2.5rem" }}>
+                  <span className="text-2xl sm:text-[2.5rem]">
+                    {weekSummary.min_temperature_in_week}°C
+                  </span>
+                </span>
+              </span>
+              <span className="whitespace-nowrap">
+                Avg. sun exposure:{" "}
+                <span className="font-bold" style={{ fontSize: "2.5rem" }}>
+                  <span className="text-2xl sm:text-[2.5rem]">
+                    {weekSummary.average_sun_exposure.toFixed(0)} s
+                  </span>
+                </span>
+              </span>
+              <span className="whitespace-nowrap">
+                Precipitation:{" "}
+                <span className="font-bold" style={{ fontSize: "2.5rem" }}>
+                  <span className="text-2xl sm:text-[2.5rem]">
+                    {weekSummary.rain_information}
+                  </span>
+                </span>
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div>Loading weekly summary...</div>
+        )}
       </footer>
     </div>
   );
+}
+
+function formatDate(dateStr: string) {
+  const [year, month, day] = dateStr.split("-");
+  return `${day}/${month}`;
+}
+
+function weatherCodeImg(code: number | string) {
+  const numCode = typeof code === "string" ? parseInt(code) : code;
+  const size = "8x";
+
+  if (numCode === 0) {
+    return <FontAwesomeIcon icon={faSun} size={size} color="#fff" />;
+  }
+  if ([1, 2, 3].includes(numCode)) {
+    return <FontAwesomeIcon icon={faCloudSun} size={size} color="#fff" />;
+  }
+  if ((numCode >= 50 && numCode <= 68) || [80, 81, 82].includes(numCode)) {
+    return <FontAwesomeIcon icon={faCloudRain} size={size} color="#fff" />;
+  }
+  if ((numCode >= 70 && numCode <= 78) || [85, 86].includes(numCode)) {
+    return <FontAwesomeIcon icon={faSnowflake} size={size} color="#fff" />;
+  }
+  if (numCode >= 95) {
+    return <FontAwesomeIcon icon={faBoltLightning} size={size} color="#fff" />;
+  }
+
+  return <FontAwesomeIcon icon={faCloudSun} size={size} color="#fff" />;
 }
