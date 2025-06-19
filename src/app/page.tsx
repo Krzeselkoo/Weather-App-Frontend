@@ -71,7 +71,7 @@ export default function Home() {
         });
 
       fetch(
-        `https://weather-app-backend-px4r.onrender.com/api/weather-forecast?latitude=${location.lat}&longitude=${location.lon}`
+        `https://weather-app-backend-hkr2.onrender.com/api/weather-forecast?latitude=${location.lat}&longitude=${location.lon}`
       )
         .then((res) => res.json())
         .then(setWeather)
@@ -80,7 +80,7 @@ export default function Home() {
         });
 
       fetch(
-        `https://weather-app-backend-px4r.onrender.com/api/week-summary?latitude=${location.lat}&longitude=${location.lon}`
+        `https://weather-app-backend-hkr2.onrender.com/api/week-summary?latitude=${location.lat}&longitude=${location.lon}`
       )
         .then((res) => res.json())
         .then(setWeekSummary)
