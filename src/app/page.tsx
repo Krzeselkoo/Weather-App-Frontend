@@ -181,18 +181,18 @@ export default function Home() {
                 </span>
               </span>
               <span className="whitespace-nowrap">
-                Max temperature:{" "}
-                <span className="font-bold" style={{ fontSize: "2.5rem" }}>
-                  <span className="text-2xl sm:text-[2.5rem]">
-                    {weekSummary.max_temperature_in_week}°C
-                  </span>
-                </span>
-              </span>
-              <span className="whitespace-nowrap">
                 Min temperature:{" "}
                 <span className="font-bold" style={{ fontSize: "2.5rem" }}>
                   <span className="text-2xl sm:text-[2.5rem]">
                     {weekSummary.min_temperature_in_week}°C
+                  </span>
+                </span>
+              </span>
+              <span className="whitespace-nowrap">
+                Max temperature:{" "}
+                <span className="font-bold" style={{ fontSize: "2.5rem" }}>
+                  <span className="text-2xl sm:text-[2.5rem]">
+                    {weekSummary.max_temperature_in_week}°C
                   </span>
                 </span>
               </span>
