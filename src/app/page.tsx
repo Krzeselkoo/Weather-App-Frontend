@@ -35,10 +35,12 @@ export default function Home() {
   );
 
   const [locationName, setLocationName] = useState<string | null>(null);
-
   const [weather, setWeather] = useState<WeatherDay[] | null>(null);
-
   const [weekSummary, setWeekSummary] = useState<WeekSummary | null>(null);
+
+  const [weatherError, setWeatherError] = useState<string | null>(null);
+  const [weekSummaryError, setWeekSummaryError] = useState<string | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   const bgMain = darkMode ? "#5A189A" : "#E0AAFF";
   const bgColumn = darkMode ? "#3C096C" : "#9D4EDD";
@@ -67,7 +69,7 @@ export default function Home() {
           }
         })
         .catch((err) => {
-          console.error("Location fetch error:", err);
+          setLocationError(err.message + " Location data");
         });
 
       fetch(
@@ -76,7 +78,7 @@ export default function Home() {
         .then((res) => res.json())
         .then(setWeather)
         .catch((err) => {
-          console.error("Weather fetch error:", err);
+          setWeatherError(err.message + " Weather data");
         });
 
       fetch(
@@ -85,7 +87,7 @@ export default function Home() {
         .then((res) => res.json())
         .then(setWeekSummary)
         .catch((err) => {
-          console.error("Weekly summary fetch error:", err);
+          setWeekSummaryError(err.message + " Week summary");
         });
     }
   }, [location]);
@@ -106,7 +108,11 @@ export default function Home() {
       >
         <div className="flex-1 text-left" />
         <div className="flex-1 text-center">
-          Weather in {locationName ? locationName : "your location"}
+          {locationError ? (
+            <span className="text-red-400">Error: {locationError}</span>
+          ) : (
+            <>Weather in {locationName ? locationName : "your location"}</>
+          )}
         </div>
         <div className="flex-1 flex justify-end items-center">
           <button
@@ -130,31 +136,39 @@ export default function Home() {
               textShadow: "0 2px 8px rgba(0,0,0,0.25)",
             }}
           >
-            <h3
-              className="font-bold w-full block text-4xl mb-2"
-              style={{ letterSpacing: "2px" }}
-            >
-              {weather && weather[i] && formatDate(weather[i].time)}
-            </h3>
-            <div className="flex flex-col items-center justify-center flex-1">
-              {weather && weather[i] && weatherCodeImg(weather[i].weather_code)}
-              {weather && weather[i] && (
-                <span className="block font-semibold text-4xl mt-16">
-                  {weather[i].temperature_2m_min}°C /{" "}
-                  {weather[i].temperature_2m_max}°C
-                </span>
-              )}
-            </div>
-            <div className="mt-2 mb-2">
-              {weather && weather[i] && (
-                <span
-                  title="Estimated energy production for this day"
-                  className="block text-lg"
+            {weatherError ? (
+              <div className="flex flex-1 items-center justify-center h-full text-xl font-semibold text-red-400">
+                Error: {weatherError}
+              </div>
+            ) : weather && weather[i] ? (
+              <>
+                <h3
+                  className="font-bold w-full block text-4xl mb-2"
+                  style={{ letterSpacing: "2px" }}
                 >
-                  Est. energy: {weather[i].estimatedEnergy.toFixed(0)} kWh
-                </span>
-              )}
-            </div>
+                  {formatDate(weather[i].time)}
+                </h3>
+                <div className="flex flex-col items-center justify-center flex-1">
+                  {weatherCodeImg(weather[i].weather_code)}
+                  <span className="block font-semibold text-4xl mt-16">
+                    {weather[i].temperature_2m_min}°C /{" "}
+                    {weather[i].temperature_2m_max}°C
+                  </span>
+                </div>
+                <div className="mt-2 mb-2">
+                  <span
+                    title="Estimated energy production for this day"
+                    className="block text-lg"
+                  >
+                    Est. energy: {weather[i].estimatedEnergy.toFixed(0)} kWh
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-1 items-center justify-center h-full text-xl font-semibold">
+                Fetching data...
+              </div>
+            )}
           </div>
         ))}
       </main>
@@ -166,11 +180,19 @@ export default function Home() {
           textShadow: "0 2px 8px rgba(0,0,0,0.25)",
         }}
       >
-        {weekSummary ? (
-          <div
-            className="w-full overflow-x-auto"
-            style={{ WebkitOverflowScrolling: "touch" }}
-          >
+        <div
+          className="w-full overflow-x-auto"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
+          {weekSummary == null && !weekSummaryError && (
+            <div>Fetching summary...</div>
+          )}
+          {weekSummaryError && (
+            <div className="flex flex-1 items-center justify-center h-full text-xl font-semibold text-red-400">
+              Error: {weekSummaryError}
+            </div>
+          )}
+          {weekSummary && !weekSummaryError && (
             <div className="flex flex-nowrap gap-x-8 gap-y-2 items-center justify-center min-w-max">
               <span
                 title="Average pressure in the next 7 days"
@@ -228,10 +250,8 @@ export default function Home() {
                 </span>
               </span>
             </div>
-          </div>
-        ) : (
-          <div>Loading weekly summary...</div>
-        )}
+          )}
+        </div>
       </footer>
     </div>
   );
