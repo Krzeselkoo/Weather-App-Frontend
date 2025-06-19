@@ -172,7 +172,10 @@ export default function Home() {
             style={{ WebkitOverflowScrolling: "touch" }}
           >
             <div className="flex flex-nowrap gap-x-8 gap-y-2 items-center justify-center min-w-max">
-              <span className="whitespace-nowrap">
+              <span
+                title="Average pressure in the next 7 days"
+                className="whitespace-nowrap"
+              >
                 Avg. pressure:{" "}
                 <span className="font-bold" style={{ fontSize: "2.5rem" }}>
                   <span className="text-2xl sm:text-[2.5rem]">
@@ -180,7 +183,10 @@ export default function Home() {
                   </span>
                 </span>
               </span>
-              <span className="whitespace-nowrap">
+              <span
+                title="Min temperature in the next 7 days"
+                className="whitespace-nowrap"
+              >
                 Min temperature:{" "}
                 <span className="font-bold" style={{ fontSize: "2.5rem" }}>
                   <span className="text-2xl sm:text-[2.5rem]">
@@ -188,7 +194,10 @@ export default function Home() {
                   </span>
                 </span>
               </span>
-              <span className="whitespace-nowrap">
+              <span
+                title="Max temperature in the next 7 days"
+                className="whitespace-nowrap"
+              >
                 Max temperature:{" "}
                 <span className="font-bold" style={{ fontSize: "2.5rem" }}>
                   <span className="text-2xl sm:text-[2.5rem]">
@@ -196,7 +205,10 @@ export default function Home() {
                   </span>
                 </span>
               </span>
-              <span className="whitespace-nowrap">
+              <span
+                title="Average sun exposure in the next 7 days"
+                className="whitespace-nowrap"
+              >
                 Avg. sun exposure:{" "}
                 <span className="font-bold" style={{ fontSize: "2.5rem" }}>
                   <span className="text-2xl sm:text-[2.5rem]">
@@ -204,7 +216,10 @@ export default function Home() {
                   </span>
                 </span>
               </span>
-              <span className="whitespace-nowrap">
+              <span
+                title="Dominant weather in the next 7 days"
+                className="whitespace-nowrap"
+              >
                 Precipitation:{" "}
                 <span className="font-bold" style={{ fontSize: "2.5rem" }}>
                   <span className="text-2xl sm:text-[2.5rem]">
