@@ -106,7 +106,7 @@ export default function Home() {
       >
         <div className="flex-1 text-left" />
         <div className="flex-1 text-center">
-          Weather for {locationName ? locationName : "your location"}
+          Weather in {locationName ? locationName : "your location"}
         </div>
         <div className="flex-1 flex justify-end items-center">
           <button
