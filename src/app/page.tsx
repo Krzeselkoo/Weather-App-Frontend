@@ -160,7 +160,7 @@ export default function Home() {
                     title="Estimated energy production for this day"
                     className="block text-lg"
                   >
-                    Est. energy: {weather[i].estimatedEnergy.toFixed(0)} kWh
+                    Est. energy: {weather[i].estimatedEnergy.toFixed(2)} kWh
                   </span>
                 </div>
               </>
