@@ -1,5 +1,7 @@
 # Weather App Frontend
 
+![Screenshot of Weather App]({6EEEF953-0768-4379-925E-2EE8B3D1FAFB}.png)
+
 This is a simple weather application frontend built with Next.js and React.  
 The app communicates with a custom weather API: [https://weather-app-backend-hkr2.onrender.com](https://weather-app-backend-hkr2.onrender.com)  
 You can find the backend repository here: [weather-app-backend GitHub](https://github.com/Krzeselkoo/Weather-App-Backend) <!-- Change this link if your backend repo is elsewhere -->
