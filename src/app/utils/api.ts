@@ -5,7 +5,7 @@ export async function fetchLocationName(
   lon: number
 ): Promise<string | null> {
   const res = await fetch(
-    `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
+    `${process.env.NEXT_PUBLIC_LOCATION_API_URL}?lat=${lat}&lon=${lon}&format=json`
   );
   const data = await res.json();
   if (data && data.address && data.address.city) {
@@ -19,7 +19,7 @@ export async function fetchWeather(
   lon: number
 ): Promise<WeatherDay[]> {
   const res = await fetch(
-    `https://weather-app-backend-hkr2.onrender.com/api/weather-forecast?latitude=${lat}&longitude=${lon}`
+    `${process.env.NEXT_PUBLIC_WEATHER_API_URL}?latitude=${lat}&longitude=${lon}`
   );
   if (!res.ok) throw new Error("Weather data");
   return res.json();
@@ -30,7 +30,7 @@ export async function fetchWeekSummary(
   lon: number
 ): Promise<WeekSummary> {
   const res = await fetch(
-    `https://weather-app-backend-hkr2.onrender.com/api/week-summary?latitude=${lat}&longitude=${lon}`
+    `${process.env.NEXT_PUBLIC_WEEK_SUMMARY_API_URL}?latitude=${lat}&longitude=${lon}`
   );
   if (!res.ok) throw new Error("Week summary");
   return res.json();
