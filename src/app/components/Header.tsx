@@ -1,19 +1,24 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSun, faMoon } from "@fortawesome/free-solid-svg-icons";
+import { SyncLoader } from "react-spinners";
 
 interface HeaderProps {
   darkMode: boolean;
   setDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
+  location: { lat: number; lon: number } | null;
   locationName: string | null;
   locationError: string | null;
+  locationNameError: string | null;
   bgFooter: string;
 }
 
 export function Header({
   darkMode,
   setDarkMode,
+  location,
   locationName,
   locationError,
+  locationNameError,
   bgFooter,
 }: HeaderProps) {
   return (
@@ -29,9 +34,31 @@ export function Header({
       <div className="flex-1 text-left" />
       <div className="flex-1 text-center">
         {locationError ? (
-          <span className="text-red-400">Error: {locationError}</span>
+          <span className="text-red-400">
+            {locationError.toLowerCase().includes("denied")
+              ? "Location access denied. Please allow location to see weather data."
+              : `Error: ${locationError}`}
+          </span>
+        ) : locationNameError ? (
+          <span className="text-red-400">
+            Failed to get location name from API.
+          </span>
+        ) : locationName ? (
+          <>Weather in {locationName}</>
+        ) : location ? (
+          <div className="flex items-center justify-center">
+            <span className="inline-block font-semibold text-400 mr-3">
+              Fetching location data
+            </span>
+            <SyncLoader color="#F3F4F6" size={8} />
+          </div>
         ) : (
-          <>Weather in {locationName ? locationName : "your location"}</>
+          <div className="flex items-center justify-center">
+            <span className="inline-block font-semibold text-400 mr-3">
+              Waiting for location
+            </span>
+            <SyncLoader color="#F3F4F6" size={8} />
+          </div>
         )}
       </div>
       <div className="flex-1 flex justify-end items-center">

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useGeolocation } from "./hooks/useGeolocation";
+import { useFetch } from "./hooks/useFetch";
 
-import { WeatherDay, WeekSummary } from "./utils/types";
 import { getColors } from "./utils/colors";
 
 import { fetchLocationName, fetchWeather, fetchWeekSummary } from "./utils/api";
@@ -14,50 +15,31 @@ import { FooterSummary } from "./components/FooterSummary";
 export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
 
-  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(
-    null
-  );
-
-  const [locationName, setLocationName] = useState<string | null>(null);
-  const [weather, setWeather] = useState<WeatherDay[] | null>(null);
-  const [weekSummary, setWeekSummary] = useState<WeekSummary | null>(null);
-
-  const [weatherError, setWeatherError] = useState<string | null>(null);
-  const [weekSummaryError, setWeekSummaryError] = useState<string | null>(null);
-  const [locationError, setLocationError] = useState<string | null>(null);
-
   const colors = getColors(darkMode);
 
   const bgMain = colors.main;
   const bgColumn = colors.column;
   const bgFooter = colors.footer;
 
-  useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        setLocation({
-          lat: pos.coords.latitude,
-          lon: pos.coords.longitude,
-        });
-      });
-    }
-  }, []);
+  const { location, error: locationError } = useGeolocation();
 
-  useEffect(() => {
-    if (location) {
-      fetchLocationName(location.lat, location.lon)
-        .then(setLocationName)
-        .catch((err) => setLocationError(err.message + " Location data"));
+  const { data: locationName, error: locationNameError } = useFetch(
+    location,
+    fetchLocationName,
+    "Location data"
+  );
 
-      fetchWeather(location.lat, location.lon)
-        .then(setWeather)
-        .catch((err) => setWeatherError(err.message + " Weather data"));
+  const { data: weather, error: weatherError } = useFetch(
+    location,
+    fetchWeather,
+    "Weather data"
+  );
 
-      fetchWeekSummary(location.lat, location.lon)
-        .then(setWeekSummary)
-        .catch((err) => setWeekSummaryError(err.message + " Week summary"));
-    }
-  }, [location]);
+  const { data: weekSummary, error: weekSummaryError } = useFetch(
+    location,
+    fetchWeekSummary,
+    "Week summary"
+  );
 
   return (
     <div
@@ -67,8 +49,10 @@ export default function Home() {
       <Header
         darkMode={darkMode}
         setDarkMode={setDarkMode}
+        location={location}
         locationName={locationName}
         locationError={locationError}
+        locationNameError={locationNameError}
         bgFooter={bgFooter}
       />
 
@@ -84,7 +68,12 @@ export default function Home() {
               textShadow: "0 2px 8px rgba(0,0,0,0.25)",
             }}
           >
-            <WeatherColumn day={weather?.[i]} error={weatherError} />
+            <WeatherColumn
+              day={weather?.[i]}
+              error={weatherError}
+              locationError={locationError}
+              location={location}
+            />
           </div>
         ))}
       </main>
@@ -104,7 +93,8 @@ export default function Home() {
           <FooterSummary
             summary={weekSummary}
             error={weekSummaryError}
-            loading={weekSummary == null && !weekSummaryError}
+            locationError={locationError}
+            location={location}
           />
         </div>
       </footer>

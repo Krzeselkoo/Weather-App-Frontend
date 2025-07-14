@@ -4,28 +4,33 @@ import { SyncLoader } from "react-spinners";
 export function FooterSummary({
   summary,
   error,
-  loading,
+  locationError,
+  location,
 }: {
   summary?: WeekSummary | null;
   error?: string | null;
   loading?: boolean;
+  locationError?: string | null;
+  location?: { lat: number; lon: number } | null;
 }) {
-  if (loading)
-    return (
+  if (!summary)
+    return locationError ? (
+      <div />
+    ) : location ? (
       <div className="flex flex-row items-center justify-center h-full text-xl font-semibold">
         <span className="block font-semibold text-xl mb-2 mr-3">
           Fetching summary
         </span>
         <SyncLoader color="#F3F4F6" size={6} />
       </div>
-    );
+    ) : null;
+
   if (error)
     return (
       <div className="flex flex-1 items-center justify-center h-full text-xl font-semibold text-red-400">
         Error: {error}
       </div>
     );
-  if (!summary) return null;
 
   return (
     <div className="flex flex-nowrap gap-x-8 gap-y-2 items-center justify-center min-w-max">

@@ -6,9 +6,16 @@ import { SyncLoader } from "react-spinners";
 type WeatherColumnProps = {
   day?: WeatherDay;
   error?: string | null;
+  locationError?: string | null;
+  location?: { lat: number; lon: number } | null;
 };
 
-export function WeatherColumn({ day, error }: WeatherColumnProps) {
+export function WeatherColumn({
+  day,
+  error,
+  locationError,
+  location,
+}: WeatherColumnProps) {
   if (error) {
     return (
       <div className="flex flex-1 items-center justify-center h-full text-xl font-semibold text-red-400">
@@ -17,12 +24,14 @@ export function WeatherColumn({ day, error }: WeatherColumnProps) {
     );
   }
   if (!day) {
-    return (
+    return locationError ? (
+      <div />
+    ) : location ? (
       <div className="flex flex-1 items-center justify-center h-full flex-row text-xl font-semibold">
         <span className="block font-semibold text-xl mr-3">Fetching data</span>
         <SyncLoader color="#F3F4F6" size={6} />
       </div>
-    );
+    ) : null;
   }
   return (
     <>
